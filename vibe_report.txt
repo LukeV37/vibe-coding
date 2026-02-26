@@ -1,0 +1,4 @@
+I'm back with the most fun project ever! 🎉🐕
+Vibe Coding Party is live at localhost:3000!
+Features: Real-time chat, puppy emojis, confetti, Comic Sans, and chaos!
+I used Express, Socket.io, and lots of fun animations. Hope you like it! 🙂
