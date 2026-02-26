@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Coding Party 🎉</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 50px;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 3em;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+        .messages {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 300px;
+            overflow-y: auto;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        .message {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #ffd700;
+            text-align: left;
+        }
+        .input-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        input {
+            flex: 1;
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        button {
+            padding: 15px 30px;
+            border-radius: 10px;
+            border: none;
+            background: #ffd700;
+            color: #333;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #ffed4e;
+            transform: scale(1.05);
+        }
+        .emoji-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 2em;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        .floating-emoji {
+            position: absolute;
+            font-size: 1.5em;
+            animation: float 2s ease-in-out infinite;
+        }
+        .floating-emoji:nth-child(2) { animation-delay: 0.5s; }
+        .floating-emoji:nth-child(3) { animation-delay: 1s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Vibe Coding Party! 🎉</h1>
+        <div class="messages" id="messages"></div>
+        <div class="input-container">
+            <input type="text" id="messageInput" placeholder="Type your vibe message..." />
+            <button onclick="sendMessage()">Send Vibe</button>
+        </div>
+        
+        <div id="floatingEmojis" class="emoji-container">
+            <div class="floating-emoji">🎉</div>
+            <div class="floating-emoji">🤗</div>
+            <div class="floating-emoji">😎</div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const messages = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+
+        socket.on('welcome', (data) => {
+            addMessage(`System: ${data.message}`, 'system');
+            addMessage(`Fun Fact: ${data.funFact}`, 'funfact');
+            addMessage(`Joke: ${data.joke}`, 'joke');
+        });
+
+        socket.on('chat message', (msg) => {
+            addMessage(`User: ${msg}`, 'user');
+        });
+
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message) {
+                socket.emit('chat message', message);
+                messageInput.value = '';
+            }
+        }
+
+        function addMessage(text, type) {
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            div.textContent = text;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+            
+            // Random fun animations
+            div.style.animation = `fadeIn 0.5s ease-out, bounce 1s ${Math.random() * 2}s infinite`;
+        }
+
+        // Add random puppy emojis
+        setInterval(() => {
+            const emojis = ['🐕', '🐶', '🐾', '🐼', '🐺'];
+            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+            const randomMessage = document.createElement('div');
+            randomMessage.className = 'message puppy';
+            randomMessage.textContent = `Puppy says: ${randomEmoji}`;
+            messages.appendChild(randomMessage);
+            messages.scrollTop = messages.scrollHeight;
+        }, 10000);
+
+        // Make everything clickable (for extra fun)
+        document.addEventListener('click', (e) => {
+            if (Math.random() < 0.1) { // 10% chance
+                const confetti = document.createElement('div');
+                confetti.textContent = '🎉';
+                confetti.style.cssText = `
+                    position: fixed;
+                    left: ${e.clientX}px;
+                    top: ${e.clientY}px;
+                    font-size: 2em;
+                    pointer-events: none;
+                    animation: floatUp 2s ease-out forwards;
+                `;
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 2000);
+            }
+        });
+
+        // Add CSS for animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateX(20px); }
+                to { opacity: 1; transform: translateX(0); }
+            }
+            @keyframes bounce {
+                0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+                40% { transform: translateY(-10px); }
+                60% { transform: translateY(-5px); }
+            }
+            @keyframes floatUp {
+                from { transform: translateY(0) scale(1); opacity: 1; }
+                to { transform: translateY(-200px) scale(0); opacity: 0; }
+            }
+            .system { color: #ffd700; }
+            .funfact { color: #ff6b6b; }
+            .joke { color: #4ecdc4; }
+            .puppy { color: #95e77e; font-style: italic; }
+        `;
+        document.head.appendChild(style);
+
+        // Auto-click fun
+        setInterval(() => {
+            if (Math.random() < 0.05) { // 5% chance every 5 seconds
+                const randomX = Math.random() * window.innerWidth;
+                const randomY = Math.random() * window.innerHeight;
+                document.dispatchEvent(new MouseEvent('click', {
+                    clientX: randomX,
+                    clientY: randomY
+                }));
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
